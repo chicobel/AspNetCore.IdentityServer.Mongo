@@ -44,7 +44,7 @@
         /// </summary>
         /// <param name="apiResourceNames">The names.</param>
         /// <returns></returns>
-        public virtual async Task<IEnumerable<Duende.IdentityServer.Models.ApiResource?>> FindApiResourcesByNameAsync(IEnumerable<string> apiResourceNames)
+        public virtual async Task<IEnumerable<Duende.IdentityServer.Models.ApiResource>> FindApiResourcesByNameAsync(IEnumerable<string> apiResourceNames)
         {
             if (apiResourceNames is null)
                 throw new ArgumentNullException(nameof(apiResourceNames));
@@ -59,7 +59,7 @@
             else
                 Logger.LogDebug("Did not find {Apis} API resource in database", apiResourceNames);
 
-            return models;
+            return models as IEnumerable<Duende.IdentityServer.Models.ApiResource>;
         }
 
         /// <summary>
@@ -67,7 +67,7 @@
         /// </summary>
         /// <param name="scopeNames"></param>
         /// <returns></returns>
-        public virtual async Task<IEnumerable<Duende.IdentityServer.Models.ApiResource?>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
+        public virtual async Task<IEnumerable<Duende.IdentityServer.Models.ApiResource>> FindApiResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
         {
             var names = scopeNames.ToArray();
 
@@ -78,7 +78,7 @@
 
             Logger.LogDebug("Found {Apis} API resources in database", models.Select(x => x!.Name));
 
-            return models;
+            return models as IEnumerable<Duende.IdentityServer.Models.ApiResource>;
         }
 
         /// <summary>
@@ -86,7 +86,7 @@
         /// </summary>
         /// <param name="scopeNames"></param>
         /// <returns></returns>
-        public virtual async Task<IEnumerable<Duende.IdentityServer.Models.IdentityResource?>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
+        public virtual async Task<IEnumerable<Duende.IdentityServer.Models.IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
         {
             var scopes = scopeNames.ToArray();
 
@@ -95,7 +95,7 @@
 
             Logger.LogDebug("Found {IdentityResources} identity scopes in database", results.Select(x => x.Name));
 
-            return results.Select(x => x.ToModel()).ToArray();
+            return results.Select(x => x.ToModel()).ToArray() as IEnumerable<Duende.IdentityServer.Models.IdentityResource>;
         }
 
         /// <summary>
@@ -103,7 +103,7 @@
         /// </summary>
         /// <param name="scopeNames"></param>
         /// <returns></returns>
-        public virtual async Task<IEnumerable<Duende.IdentityServer.Models.ApiScope?>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
+        public virtual async Task<IEnumerable<Duende.IdentityServer.Models.ApiScope>> FindApiScopesByNameAsync(IEnumerable<string> scopeNames)
         {
             var scopes = scopeNames.ToArray();
 
@@ -112,7 +112,7 @@
 
             Logger.LogDebug("Found {Scopes} scopes in database", results.Select(x => x.Name));
 
-            return results.Select(x => x.ToModel()).ToArray();
+            return results.Select(x => x.ToModel()).ToArray() as IEnumerable<Duende.IdentityServer.Models.ApiScope>;
         }
 
         /// <summary>
@@ -126,9 +126,9 @@
             var scopes = await (await Context.ApiScopes.FindAsync(_ => true)).ToListAsync();
 
             var result = new Duende.IdentityServer.Models.Resources(
-                identity.Select(x => x.ToModel()),
-                apis.Select(x => x.ToModel()),
-                scopes.Select(x => x.ToModel())
+                identity.Select(x => x.ToModel()) as IEnumerable<Duende.IdentityServer.Models.IdentityResource>,
+                apis.Select(x => x.ToModel()) as IEnumerable<Duende.IdentityServer.Models.ApiResource>,
+                scopes.Select(x => x.ToModel()) as IEnumerable<Duende.IdentityServer.Models.ApiScope>
             );
 
             Logger.LogDebug("Found {Scopes} as all scopes, and {Apis} as API resources",

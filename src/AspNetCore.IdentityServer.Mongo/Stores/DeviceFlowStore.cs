@@ -107,7 +107,7 @@
             Logger.LogDebug("{UserCode} device code found in database", userCode);
 
             var update = Builders<DeviceFlowCode>.Update
-                                                 .Set(x => x.SubjectId, data.Subject.FindFirst(JwtClaimTypes.Subject)!.Value)
+                                                 .Set(x => x.SubjectId, data.Subject?.FindFirst(JwtClaimTypes.Subject)!.Value)
                                                  .Set(x => x.Data, entity.Data);
 
             var result = await Context.DeviceFlowCodes.UpdateOneAsync(x => x.UserCode == userCode, update);

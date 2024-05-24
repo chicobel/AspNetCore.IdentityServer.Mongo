@@ -69,7 +69,7 @@
         }
 
         /// <inheritdoc/>
-        public async Task<IEnumerable<Duende.IdentityServer.Models.PersistedGrant?>> GetAllAsync(PersistedGrantFilter filter)
+        public async Task<IEnumerable<Duende.IdentityServer.Models.PersistedGrant>> GetAllAsync(PersistedGrantFilter filter)
         {
             filter.Validate();
 
@@ -79,7 +79,7 @@
 
             Logger.LogDebug("{PersistedGrantCount} persisted grants found using {@Filter}", persistedGrants.Count, filter);
 
-            return model;
+            return model as IEnumerable<Duende.IdentityServer.Models.PersistedGrant>;
         }
 
         /// <inheritdoc/>

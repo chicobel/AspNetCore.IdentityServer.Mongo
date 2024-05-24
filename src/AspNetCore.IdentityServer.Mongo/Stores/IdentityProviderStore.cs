@@ -76,8 +76,9 @@
         /// <returns></returns>
         protected virtual IdentityProvider? MapIdp(Entities.IdentityProvider idp)
         {
-            if (idp.Type == "oidc")
-                return new OidcProvider(idp.ToModel());
+            var idpModel = idp.ToModel();
+            if (idpModel != null && idp.Type == "oidc")
+                return new OidcProvider(idpModel);
 
             return null;
         }
