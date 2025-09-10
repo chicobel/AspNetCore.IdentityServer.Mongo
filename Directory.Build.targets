@@ -1,6 +1,6 @@
 <Project>
-	<PropertyGroup Condition="'$(TargetFramework)' == 'net8.0'">
-		<FrameworkVersion>8.0.*</FrameworkVersion>
+	<PropertyGroup Condition="'$(TargetFramework)' == 'net9.0'">
+		<FrameworkVersion>9.0.*</FrameworkVersion>
 	</PropertyGroup>
 	<ItemGroup>
 		<!--build related-->
