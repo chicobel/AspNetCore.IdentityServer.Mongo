@@ -23,11 +23,15 @@
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="logger">The logger.</param>
-        public ResourceStore(IConfigurationDbContext context, ILogger<ResourceStore> logger)
+        /// <param name="loggerFactory">The logger factory.</param>
+        public ResourceStore(IConfigurationDbContext context, ILogger<ResourceStore> logger, ILoggerFactory loggerFactory)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            LoggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
+
+        protected ILoggerFactory LoggerFactory { get; private set; }
 
         /// <summary>
         /// The DbContext.
@@ -64,7 +68,7 @@
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            var models = results.Select(x => x.ToModel()).ToArray();
+            var models = results.Select(x => x.ToModel(LoggerFactory)).ToArray();
 
             if (models.Length > 0)
                 Logger.LogDebug("Found {Apis} API resource in database", results.Select(x => x.Name));
@@ -105,7 +109,7 @@
                 .ToListAsync()
                 .ConfigureAwait(false);
 
-            var models = results.Select(x => x.ToModel()).ToArray();
+            var models = results.Select(x => x.ToModel(LoggerFactory)).ToArray();
 
             Logger.LogDebug("Found {Apis} API resources in database", models.Select(x => x?.Name));
 
@@ -135,7 +139,7 @@
 
             Logger.LogDebug("Found {IdentityResources} identity scopes in database", results.Select(x => x.Name));
 
-            return results.Select(x => x.ToModel()).ToArray() as IEnumerable<Duende.IdentityServer.Models.IdentityResource>;
+            return results.Select(x => x.ToModel(LoggerFactory)).ToArray() as IEnumerable<Duende.IdentityServer.Models.IdentityResource>;
         }
 
         public virtual async Task<IEnumerable<Duende.IdentityServer.Models.IdentityResource>> FindIdentityResourcesByScopeNameAsync(IEnumerable<string> scopeNames)
@@ -162,7 +166,7 @@
 
             Logger.LogDebug("Found {IdentityResources} identity scopes in database", results.Select(x => x.Name));
 
-            return results.Select(x => x.ToModel()).ToArray() as IEnumerable<Duende.IdentityServer.Models.IdentityResource>;
+            return results.Select(x => x.ToModel(LoggerFactory)).ToArray() as IEnumerable<Duende.IdentityServer.Models.IdentityResource>;
         }
 
         /// <summary>
@@ -195,7 +199,7 @@
             Logger.LogDebug("Found {Scopes} scopes in database", results.Select(x => x.Name));
 
 
-            return results.Select(x => x.ToModel()).ToArray() as IEnumerable<Duende.IdentityServer.Models.ApiScope>;
+            return results.Select(x => x.ToModel(LoggerFactory)).ToArray() as IEnumerable<Duende.IdentityServer.Models.ApiScope>;
         }
 
         /// <summary>
@@ -209,9 +213,9 @@
             var scopes = await (await Context.ApiScopes.FindAsync(_ => true)).ToListAsync();
 
             var result = new Duende.IdentityServer.Models.Resources(
-                identity.Select(x => x.ToModel()) as IEnumerable<Duende.IdentityServer.Models.IdentityResource>,
-                apis.Select(x => x.ToModel()) as IEnumerable<Duende.IdentityServer.Models.ApiResource>,
-                scopes.Select(x => x.ToModel()) as IEnumerable<Duende.IdentityServer.Models.ApiScope>
+                identity.Select(x => x.ToModel(LoggerFactory)) as IEnumerable<Duende.IdentityServer.Models.IdentityResource>,
+                apis.Select(x => x.ToModel(LoggerFactory)) as IEnumerable<Duende.IdentityServer.Models.ApiResource>,
+                scopes.Select(x => x.ToModel(LoggerFactory)) as IEnumerable<Duende.IdentityServer.Models.ApiScope>
             );
 
             Logger.LogDebug("Found {Scopes} as all scopes, and {Apis} as API resources",

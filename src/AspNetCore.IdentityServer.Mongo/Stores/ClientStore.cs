@@ -22,11 +22,15 @@
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="logger">The logger.</param>
-        public ClientStore(IConfigurationDbContext context, ILogger<ClientStore> logger)
+        /// <param name="loggerFactory">The logger factory.</param>
+        public ClientStore(IConfigurationDbContext context, ILogger<ClientStore> logger, ILoggerFactory loggerFactory)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            LoggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
+
+        protected ILoggerFactory LoggerFactory { get; private set; }
 
         /// <summary>
         /// The DbContext.
@@ -48,7 +52,7 @@
         public virtual async Task<Duende.IdentityServer.Models.Client?> FindClientByIdAsync(string clientId)
         {
             var client = await Context.Clients.AsQueryable().Where(x => x.ClientId == clientId).SingleOrDefaultAsync();
-            var model = client?.ToModel();
+            var model = client?.ToModel(LoggerFactory);
 
             Logger.LogDebug("{ClientId} found in database: {ClientIdFound}", clientId, model != null);
 

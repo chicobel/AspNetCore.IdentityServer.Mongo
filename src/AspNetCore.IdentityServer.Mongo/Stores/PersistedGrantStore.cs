@@ -26,11 +26,15 @@
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="logger">The logger.</param>
-        public PersistedGrantStore(IPersistedGrantDbContext context, ILogger<PersistedGrantStore> logger)
+        /// <param name="loggerFactory">The logger factory.</param>
+        public PersistedGrantStore(IPersistedGrantDbContext context, ILogger<PersistedGrantStore> logger, ILoggerFactory loggerFactory)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            LoggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
+
+        protected ILoggerFactory LoggerFactory { get; private set; }
 
         /// <summary>
         /// The DbContext.
@@ -45,7 +49,7 @@
         /// <inheritdoc/>
         public virtual async Task StoreAsync(Duende.IdentityServer.Models.PersistedGrant grant)
         {
-            var result = await Context.PersistedGrants!.ReplaceOneAsync(x => x!.Key == grant.Key, grant.ToEntity(), new ReplaceOptions { IsUpsert = true });
+            var result = await Context.PersistedGrants!.ReplaceOneAsync(x => x!.Key == grant.Key, grant.ToEntity(LoggerFactory), new ReplaceOptions { IsUpsert = true });
             if (result.MatchedCount == 0)
             {
                 Logger.LogDebug("{PersistedGrantKey} persisted grant not found in database", grant.Key);
@@ -61,7 +65,7 @@
         public virtual async Task<Duende.IdentityServer.Models.PersistedGrant?> GetAsync(string key)
         {
             var persistedGrant = await Context.PersistedGrants.AsQueryable().Where(x => x.Key == key).SingleOrDefaultAsync();
-            var model = persistedGrant?.ToModel();
+            var model = persistedGrant?.ToModel(LoggerFactory);
 
             Logger.LogDebug("{PersistedGrantKey} persisted grant found in database: {PersistedGrantKeyFound}", key, model != null);
 
@@ -75,7 +79,7 @@
 
             var persistedGrants = await Filter(Context.PersistedGrants.AsQueryable(), filter).ToListAsync();
 
-            var model = persistedGrants.Select(x => x.ToModel());
+            var model = persistedGrants.Select(x => x.ToModel(LoggerFactory));
 
             Logger.LogDebug("{PersistedGrantCount} persisted grants found using {@Filter}", persistedGrants.Count, filter);
 

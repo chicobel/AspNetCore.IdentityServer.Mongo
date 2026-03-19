@@ -25,12 +25,16 @@
         /// </summary>
         /// <param name="context">The context.</param>
         /// <param name="logger">The logger.</param>
+        /// <param name="loggerFactory">The logger factory.</param>
         /// <exception cref="ArgumentNullException">context</exception>
-        public IdentityProviderStore(IConfigurationDbContext context, ILogger<IdentityProviderStore> logger)
+        public IdentityProviderStore(IConfigurationDbContext context, ILogger<IdentityProviderStore> logger,ILoggerFactory loggerFactory)
         {
             Context = context ?? throw new ArgumentNullException(nameof(context));
             Logger = logger ?? throw new ArgumentNullException(nameof(logger));
+            LoggerFactory = loggerFactory ?? throw new ArgumentNullException(nameof(loggerFactory));
         }
+
+        protected ILoggerFactory LoggerFactory { get; private set; }
 
         /// <summary>
         /// The DbContext.
@@ -76,7 +80,7 @@
         /// <returns></returns>
         protected virtual IdentityProvider? MapIdp(Entities.IdentityProvider idp)
         {
-            var idpModel = idp.ToModel();
+            var idpModel = idp.ToModel(LoggerFactory);
             if (idpModel != null && idp.Type == "oidc")
                 return new OidcProvider(idpModel);
 

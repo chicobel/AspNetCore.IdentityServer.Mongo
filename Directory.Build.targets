@@ -11,7 +11,7 @@
 		</PackageReference>
 
 		<!--core dependencies -->
-		<PackageReference Update="AutoMapper" Version="13.0.1" />
+		<PackageReference Update="AutoMapper" Version="16.1.1" />
 		<PackageReference Update="Duende.IdentityServer" Version="7.0.8" />
 		<PackageReference Update="Duende.IdentityServer.AspNetIdentity" Version="7.0.8" />
 		<PackageReference Update="Duende.IdentityServer.Storage" Version="7.0.8" />
